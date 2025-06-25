@@ -1,7 +1,11 @@
 # 프레임워크 로드
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
 import pandas as pd
 from invest import Quant, load_data
+from database import MyDB
+
+# MyDB 클래스 생성
+mydb = MyDB()
 
 # Flask class 생성
 # 생성자 함수 필요한 인자: 파일의 이름
@@ -27,11 +31,69 @@ def index():
     #                        axis_x = x,
     #                        axis_y = y
     #                        )
-    return render_template('test.html')
+    return render_template('login.html')
 
 @app.route('/main', methods=['post'])
 def main():
-    return render_template('index.html')
+    # 유저가 보낸 데이터를 변수에 저장
+        # get 방식으로 보낸 데이터 -> request.args
+        # post 방식으로 보낸 데이터 -> reqeust.form
+    user_id = request.form['input_id']
+    user_pass = request.form['input_pass']
+    print(f'id : {user_id}, pw : {user_pass}')
+    # 유저가 입력한 아이디와 비밀번호를 DB 서버에 해당 데이터가 존재하는지 확인
+    login_query = '''
+        select * from `user`
+        where `id` = %s and `password` = %s
+    '''
+    result_sql = mydb.sql_query(login_query, user_id, user_pass)
+    
+    # result_sql이 존재하면 -> 로그인 성공
+    if result_sql:
+        return render_template('index.html')
+    # 존재하지 않으면 -> 로그인 실패
+    else:
+        # 로그인 페이지 주소로 이동
+        return redirect('/')
+
+@app.route('/signup')
+def signup():
+    return render_template('id_check.html')
+
+# id의 값을 중복체크하는 주소 생성
+@app.route('/id_check')
+def id_check():
+    # 유저가 보낸 아이디를 변수에 저장
+    user_id = request.args['input_id']
+    id_check_query = '''
+        select * from `user`
+        where id = %s
+    '''
+    result_sql = mydb.sql_query(id_check_query, user_id)
+
+    # result_sql이 존재하면(아이디 중복) -> 회원가입 불가
+    if result_sql:
+        return redirect('/signup')
+    else:
+        # 사용 가능
+        return render_template(
+            'signup2.html', 
+            id = user_id)
+
+@app.route('/user_insert', methods=['post'])
+def user_insert():
+    # 유저가 보낸 데이터 3게
+    user_id = request.form['input_id']
+    user_pass = request.form['input_pass']
+    user_name = request.form['input_name']
+    # DB 서버에 데이터 insert
+    insert_query = '''
+        insert into `user`
+        values (%s, %s, %s)
+    '''
+    mydb.sql_query(insert_query, user_id, user_pass, user_name)
+    mydb.commit_db()
+    return render_template('signup3.html')
 
 @app.route('/invest')
 def invest():
