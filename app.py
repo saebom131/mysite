@@ -111,6 +111,11 @@ def invest():
     )
     # input_code를 이용해 csv 파일 로드
     df = pd.read_csv(f'csv/{input_code}.csv')
+    df.rename(
+        columns = {
+            '날짜' : 'Date'
+        }, inplace=True
+    )
     quant = Quant(df, _start = input_start_time, _end = input_end_time, _col='Close')
     if input_kind == 'bnh':
         result, rtn = quant.buyandhold()
