@@ -116,6 +116,7 @@ def invest():
         '''
     )
     # input_code를 이용해 csv 파일 로드
+    # local에서는 상대경로
     # df = pd.read_csv(f'csv/{input_code}.csv')
     # pythonanywhere에서는 절대경로 사용
     df = pd.read_csv(f'/home/ojds01/mysite/csv/{input_code}.csv')
@@ -139,7 +140,7 @@ def invest():
     result = result.loc[ result['rtn'] != 1, ]
     # 반환된 result 데이터프레임의 컬럼 값들을 columns라는 새로운 리스트에 대입
     cols = list(result.columns)
-    value= result.to_dict('records')
+    value = result.to_dict('records')
     x = list(result['Date'])
     y = list(result['acc_rtn'])
     res_data = {
