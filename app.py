@@ -116,9 +116,6 @@ def invest():
         '''
     )
     # input_code를 이용해 csv 파일 로드
-<<<<<<< Updated upstream
-    df = pd.read_csv(f'csv/{input_code}.csv')
-=======
     # df = pd.read_csv(f'csv/{input_code}.csv')
     # pythonanywhere에서는 절대경로 사용
     df = pd.read_csv(f'/home/ojds01/mysite/csv/{input_code}.csv')
@@ -127,7 +124,6 @@ def invest():
             '날짜' : 'Date'
         }, inplace=True
     )
->>>>>>> Stashed changes
     quant = Quant(df, _start = input_start_time, _end = input_end_time, _col='Close')
     if input_kind == 'bnh':
         result, rtn = quant.buyandhold()
